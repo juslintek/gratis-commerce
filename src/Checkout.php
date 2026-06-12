@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 namespace Gratis\Commerce;
 
-final class Checkout
-{
-    public static function register(): void
-    {
+final class Checkout {
+
+    public static function register(): void {
         register_rest_route('gratis-commerce/v1', '/checkout/(?P<product_id>\d+)', [
             'methods' => 'POST',
             'callback' => [__CLASS__, 'createSession'],
@@ -18,8 +17,7 @@ final class Checkout
         ]);
     }
 
-    public static function createSession(\WP_REST_Request $request): \WP_REST_Response
-    {
+    public static function createSession(\WP_REST_Request $request): \WP_REST_Response {
         $product_id = (int) $request['product_id'];
         $product = get_post($product_id);
         if (!$product || $product->post_type !== 'gratis_product') {
@@ -55,8 +53,7 @@ final class Checkout
         return new \WP_REST_Response(['url' => $data['url'] ?? '']);
     }
 
-    public static function handleWebhook(\WP_REST_Request $request): \WP_REST_Response
-    {
+    public static function handleWebhook(\WP_REST_Request $request): \WP_REST_Response {
         $payload = $request->get_body();
         $event = json_decode($payload, true);
 

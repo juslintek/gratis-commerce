@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 namespace Gratis\Commerce;
 
-final class Products
-{
-    public static function register(): void
-    {
+final class Products {
+
+    public static function register(): void {
         register_post_type('gratis_product', [
             'labels'       => ['name' => 'Products', 'singular_name' => 'Product'],
             'public'       => true,

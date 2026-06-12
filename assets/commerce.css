@@ -1,0 +1,188 @@
+/* Gratis Commerce — WooCommerce enhancements */
+
+/* Loop action buttons */
+.gratis-quick-view-btn,
+.gratis-wishlist-btn,
+.gratis-compare-btn {
+    display: inline-block;
+    margin: 4px 4px 0 0;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.2;
+    cursor: pointer;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+}
+
+.gratis-wishlist-btn.is-active,
+.gratis-compare-btn.is-active {
+    background: currentColor;
+}
+
+.gratis-wishlist-btn.is-active span,
+.gratis-compare-btn.is-active {
+    color: #fff;
+}
+
+/* Quick-view modal */
+.gratis-qv-modal[hidden] {
+    display: none;
+}
+
+.gratis-qv-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gratis-qv-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.gratis-qv-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(900px, 92vw);
+    max-height: 88vh;
+    overflow: auto;
+    padding: 28px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.gratis-qv-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 28px;
+    line-height: 1;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.gratis-qv {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.gratis-qv__media img {
+    width: 100%;
+    height: auto;
+}
+
+.gratis-qv__title {
+    margin-top: 0;
+}
+
+.gratis-qv__actions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Comparison table */
+.gratis-compare-wrap {
+    overflow-x: auto;
+}
+
+.gratis-compare-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gratis-compare-table th,
+.gratis-compare-table td {
+    padding: 10px 12px;
+    border: 1px solid #e2e2e2;
+    text-align: left;
+    vertical-align: top;
+}
+
+.gratis-compare-table thead img {
+    max-width: 120px;
+    height: auto;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.gratis-compare-name {
+    display: block;
+    font-weight: 600;
+}
+
+/* Wishlist grid */
+.gratis-wishlist-grid,
+.gratis-filter__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 18px;
+}
+
+.gratis-wishlist-item img,
+.gratis-filter__item img {
+    width: 100%;
+    height: auto;
+}
+
+.gratis-wishlist-item__title,
+.gratis-filter__name {
+    display: block;
+    margin-top: 6px;
+}
+
+/* Filter panel */
+.gratis-filter {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+}
+
+.gratis-filter__group {
+    margin: 0 0 18px;
+    border: 0;
+    padding: 0;
+}
+
+.gratis-filter__group legend {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.gratis-filter__option {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.gratis-filter__results.is-loading {
+    opacity: 0.5;
+}
+
+@media (max-width: 782px) {
+    .gratis-qv {
+        grid-template-columns: 1fr;
+    }
+
+    .gratis-filter {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gratis-filter__results {
+        transition: none;
+    }
+}
