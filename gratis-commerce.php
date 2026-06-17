@@ -25,6 +25,10 @@ require_once __DIR__ . '/autoload.php';
 add_action('init', [\Gratis\Commerce\Products::class, 'register']);
 add_action('rest_api_init', [\Gratis\Commerce\Checkout::class, 'register']);
 
+// Admin settings screen (Stripe keys + default currency).
+add_action('admin_menu', [\Gratis\Commerce\Settings::class, 'register_menu']);
+add_action('admin_init', [\Gratis\Commerce\Settings::class, 'register_settings']);
+
 // WooCommerce enhancement layer (quick view, wishlist, compare, AJAX filters).
 // Boots only when WooCommerce is active; otherwise shows a graceful notice.
 add_action('plugins_loaded', [\Gratis\Commerce\WooCommerce\Plugin::class, 'boot']);
