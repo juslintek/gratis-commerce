@@ -2,6 +2,7 @@
 
 namespace Gratis\Commerce\WooCommerce;
 
+defined('ABSPATH') || exit;
 /**
  * Quick-view modal for product archive (shop / category / tag) pages.
  *

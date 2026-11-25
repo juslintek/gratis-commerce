@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace Gratis\Commerce;
 
+defined('ABSPATH') || exit;
 final class Checkout {
 
     public static function register(): void {
