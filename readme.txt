@@ -42,11 +42,24 @@ Yes. Everything is free — no "Pro" version, no locked features, and no nag scr
 
 = Does this plugin make external HTTP requests? =
 
-No. Unless you explicitly configure an external service (such as a CDN or SMTP host), the plugin does not phone home or send analytics.
+Only when you configure Stripe keys and a customer initiates a Stripe Checkout session. The plugin does not phone home or send analytics.
 
 = Where do I get support? =
 
 Open an issue on the plugin's GitHub repository.
+
+== Third-Party Services ==
+
+This plugin integrates with Stripe when you configure your Stripe secret key and webhook signing secret to process payments.
+
+= Stripe Checkout =
+
+When a visitor initiates checkout for a Gratis Product, the plugin sends product name, price, currency, and redirect URLs to `https://api.stripe.com/v1/checkout/sessions` to create a hosted Stripe Checkout session.
+
+* [Stripe Services Agreement](https://stripe.com/legal/ssa)
+* [Stripe Privacy Policy](https://stripe.com/privacy)
+
+No data is sent to Stripe unless you configure Stripe credentials in the plugin settings.
 
 == Changelog ==
 

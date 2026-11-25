@@ -2,6 +2,7 @@
 
 namespace Gratis\Commerce\WooCommerce;
 
+defined('ABSPATH') || exit;
 /**
  * Advanced AJAX product filtering by attributes.
  *

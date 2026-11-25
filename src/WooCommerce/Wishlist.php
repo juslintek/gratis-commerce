@@ -2,6 +2,7 @@
 
 namespace Gratis\Commerce\WooCommerce;
 
+defined('ABSPATH') || exit;
 /**
  * Wishlist for WooCommerce products.
  *

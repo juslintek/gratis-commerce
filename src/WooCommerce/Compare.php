@@ -2,6 +2,7 @@
 
 namespace Gratis\Commerce\WooCommerce;
 
+defined('ABSPATH') || exit;
 /**
  * Side-by-side product comparison (up to 4 products).
  *
