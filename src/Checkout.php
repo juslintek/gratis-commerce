@@ -19,17 +19,33 @@ final class Checkout {
     }
 
     public static function createSession(\WP_REST_Request $request): \WP_REST_Response {
+        $ip = isset($_SERVER['REMOTE_ADDR'])
+            ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))
+            : '';
+        $ip       = (string) filter_var($ip, FILTER_VALIDATE_IP);
+        $rate_key = 'gratis_comm_co_' . substr(hash('sha256', wp_salt('nonce') . '|' . gmdate('Y-m-d') . '|' . $ip), 0, 16);
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 15) {
+            return new \WP_REST_Response(['error' => 'Too many checkout requests. Please try again later.'], 429);
+        }
+
         $product_id = (int) $request['product_id'];
-        $product = get_post($product_id);
-        if (!$product || $product->post_type !== 'gratis_product') {
+        $product    = get_post($product_id);
+        if (!$product || $product->post_type !== 'gratis_product' || 'publish' !== $product->post_status) {
             return new \WP_REST_Response(['error' => 'Product not found'], 404);
         }
 
         $price = (float) get_post_meta($product_id, '_price', true);
+        if ($price <= 0) {
+            return new \WP_REST_Response(['error' => 'Invalid product price'], 400);
+        }
+
         $stripe_key = Settings::stripeSecret();
         if ('' === $stripe_key) {
             return new \WP_REST_Response(['error' => 'Stripe not configured'], 500);
         }
+
+        set_transient($rate_key, $attempts + 1, HOUR_IN_SECONDS);
 
         // Create Stripe Checkout Session via API
         $response = wp_remote_post('https://api.stripe.com/v1/checkout/sessions', [
@@ -40,7 +56,7 @@ final class Checkout {
                 'cancel_url' => get_permalink($product_id),
                 'line_items[0][price_data][currency]' => Settings::currency(),
                 'line_items[0][price_data][product_data][name]' => $product->post_title,
-                'line_items[0][price_data][unit_amount]' => (int) ($price * 100),
+                'line_items[0][price_data][unit_amount]' => (int) round($price * 100),
                 'line_items[0][quantity]' => 1,
                 'metadata[product_id]' => $product_id,
             ],
@@ -51,7 +67,7 @@ final class Checkout {
         }
 
         $data = json_decode(wp_remote_retrieve_body($response), true);
-        return new \WP_REST_Response(['url' => $data['url'] ?? '']);
+        return new \WP_REST_Response(['url' => esc_url_raw((string) ($data['url'] ?? ''))]);
     }
 
     public static function handleWebhook(\WP_REST_Request $request): \WP_REST_Response {
@@ -68,8 +84,28 @@ final class Checkout {
         $event = json_decode($payload, true);
 
         if (($event['type'] ?? '') === 'checkout.session.completed') {
-            $session = $event['data']['object'] ?? [];
-            $product_id = (int) ($session['metadata']['product_id'] ?? 0);
+            $session    = is_array($event['data']['object'] ?? null) ? $event['data']['object'] : [];
+            $product_id = absint($session['metadata']['product_id'] ?? 0);
+            $stripe_id  = sanitize_text_field((string) ($session['id'] ?? ''));
+            $customer   = sanitize_email((string) ($session['customer_email'] ?? ''));
+            $amount     = ((float) ($session['amount_total'] ?? 0)) / 100;
+
+            // Idempotency: ignore Stripe webhook retries for an already-recorded session.
+            if ('' !== $stripe_id) {
+                $existing = get_posts([
+                    'post_type'      => 'gratis_order',
+                    'post_status'    => 'any',
+                    'posts_per_page' => 1,
+                    'fields'         => 'ids',
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Stripe webhook idempotency lookup.
+                    'meta_key'       => '_stripe_id',
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Stripe webhook idempotency lookup.
+                    'meta_value'     => $stripe_id,
+                ]);
+                if (!empty($existing)) {
+                    return new \WP_REST_Response(['received' => true, 'duplicate' => true]);
+                }
+            }
 
             wp_insert_post([
                 'post_type'   => 'gratis_order',
@@ -77,9 +113,9 @@ final class Checkout {
                 'post_status' => 'publish',
                 'meta_input'  => [
                     '_product_id'  => $product_id,
-                    '_amount'      => ($session['amount_total'] ?? 0) / 100,
-                    '_customer'    => $session['customer_email'] ?? '',
-                    '_stripe_id'   => $session['id'] ?? '',
+                    '_amount'      => $amount,
+                    '_customer'    => $customer,
+                    '_stripe_id'   => $stripe_id,
                 ],
             ]);
 
